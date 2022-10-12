@@ -5,52 +5,83 @@ import sys
 import json
 import socket
 
-def checkAround(board, r, c, player):
-  comp = 0
+# def checkAround(board, r, c, player):
+#   comp = 0
+#   if player == 1:
+#     comp = 2
+#   elif player == 2:
+#     comp = 1
+#   player = []
+#   if r<len(board)-1 and board[r+1][c] == comp:
+#     player.append({r+1, c})
+#   if r>0 and board[r-1][c] == comp:
+#     player.append({r-1, c})
+#   if c<len(board[r])-1 and board[r][c+1] == comp:
+#     player.append({r, c+1})
+#   if c>0 and board[r][c-1] == comp:
+#     player.append({r, c-1})
+#   return player[0]
+
+
+def isValid(spot, board, player):
   if player == 1:
-    comp = 2
-  elif player == 2:
-    comp = 1
-  player = []
-  if r<len(board)-1 and board[r+1][c] == comp:
-    player.append({r+1, c})
-  if r>0 and board[r-1][c] == comp:
-    player.append({r-1, c})
-  if c<len(board[r])-1 and board[r][c+1] == comp:
-    player.append({r, c+1})
-  if c>0 and board[r][c-1] == comp:
-    player.append({r, c-1})
-  return player
+    next = 2
+  else:
+    next = 1
+  it = board[spot[0]][spot[1]] # spot is a spot on the board comprised of the row and column 
+  i = spot # start at spot position
+  while(i[0]<len(board) and i[1]<len(board) and i[0]>0 and i[1]>0):
+    if(board[i[0]][i[1]]==next):
+      pass
+      # search for next spot with opponent until we find a white spot
+  return True  # FIXME
+
+def lookAround(player, board, i, j):
+
+  # look around the board if space is valid until we find en empty spot
+  if board[i][j] == 0:
+    return {i, j}
+  if(i+1<len(board)):
+    lookAround(player, board, i+1, j)
+  if(j+1<len(board)):
+    lookAround(player, board, i, j+1)
+  if(i>0):
+    lookAround(player, board, i-1, j)
+  if(j>0):
+    lookAround(player, board, i, j-1)
+  if(i>0 and j>0):
+    lookAround(player, board, i-1, j-1)
+  if(i<len(board) and j<len(board)):
+    lookAround(player, board, i+1, j+1)
 
 
-def checkValid(choices, player):
-  while(choices is not None):
-    move = choices[0]
-    print(choices)
-    choices.pop(0)
-    print(choices)
+def findPlayer(player, board):
+  for i in range(len(board)):
+    for j in range(len(board[i])):
+      if board[i][j] == player:
+        spot =  lookAround(player, board, i, j)
+        if(isValid(spot, board, player)):
+          return spot
+        
+  return lookAround(player, board, 5, 5)
 
 
 def get_move(player, board):
-  if player == 1:
-    pass
-  if player == 2:
-    pass
-  for r in board:
-    print(r)
+  move = findPlayer(player, board)
+  return move
+  
   # start at board[4][4] and check around for same player and different player
-  r = 4
-  c = 4
-  valid = True
-  while(valid):
-    if board[r][c] == player:
-      choices = checkAround(board, r, c, player)
-      if choices is None:
-        valid = False
-        break
-      checkValid(choices, player)
+  # r = 4
+  # c = 4
+  # valid = True
+  # while(valid):
+  #   if board[r][c] == player:
+  #     choices = checkAround(board, r, c, player)
+  #     if choices is None:
+  #       valid = False
+  #       break
+  #     checkValid(choices, player)
 
-  return 
 
 def prepare_response(move):
   response = '{}\n'.format(move).encode()
